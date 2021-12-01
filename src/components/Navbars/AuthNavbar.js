@@ -46,39 +46,42 @@ export default function Navbar(props) {
             {/*  </li>*/}
             {/*</ul>*/}
             <ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
-              <li className="flex items-center">
-                <PagesDropdown />
-              </li>
+              {/*<li className="flex items-center">*/}
+              {/*  <PagesDropdown />*/}
+              {/*</li>*/}
               <li className="flex items-center">
                 <a
                   className="lg:text-white lg:hover:text-blueGray-200 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdemos.creative-tim.com%2Fnotus-react%2F%23%2F"
-                  target="_blank"
+                  href="#"
+                  // target="_blank"
                 >
-                  <i className="lg:text-blueGray-200 text-blueGray-400 fab fa-facebook text-lg leading-lg " />
-                  <span className="lg:hidden inline-block ml-2">Share</span>
+                  {/*<i className="lg:text-blueGray-200 text-blueGray-400 fab fa-facebook text-lg leading-lg " />*/}
+                  {/*<span className="lg:hidden inline-block ml-2">Share</span>*/}
+                  Explorer
                 </a>
               </li>
 
               <li className="flex items-center">
                 <a
                   className="lg:text-white lg:hover:text-blueGray-200 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdemos.creative-tim.com%2Fnotus-react%2F%23%2F&text=Start%20your%20development%20with%20a%20Free%20Tailwind%20CSS%20and%20React%20UI%20Kit%20and%20Admin.%20Let%20Notus%20React%20amaze%20you%20with%20its%20cool%20features%20and%20build%20tools%20and%20get%20your%20project%20to%20a%20whole%20new%20level.%20"
+                  href="#"
                   target="_blank"
                 >
-                  <i className="lg:text-blueGray-200 text-blueGray-400 fab fa-twitter text-lg leading-lg " />
-                  <span className="lg:hidden inline-block ml-2">Tweet</span>
+                  {/*<i className="lg:text-blueGray-200 text-blueGray-400 fab fa-twitter text-lg leading-lg " />*/}
+                  {/*<span className="lg:hidden inline-block ml-2">Tweet</span>*/}
+                  Stats
                 </a>
               </li>
 
               <li className="flex items-center">
                 <a
                   className="lg:text-white lg:hover:text-blueGray-200 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://github.com/creativetimofficial/notus-react?ref=nr-auth-navbar"
+                  href=""
                   target="_blank"
                 >
-                  <i className="lg:text-blueGray-200 text-blueGray-400 fab fa-github text-lg leading-lg " />
-                  <span className="lg:hidden inline-block ml-2">Star</span>
+                  Resources
+                  {/*<i className="lg:text-blueGray-200 text-blueGray-400 fab fa-github text-lg leading-lg " />*/}
+                  {/*<span className="lg:hidden inline-block ml-2">Star</span>*/}
                 </a>
               </li>
 
@@ -87,7 +90,8 @@ export default function Navbar(props) {
                   className="bg-white text-blueGray-700 active:bg-blueGray-50 text-xs font-bold uppercase px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:mr-1 lg:mb-0 ml-3 mb-3 ease-linear transition-all duration-150"
                   type="button"
                 >
-                  <i className="fas fa-arrow-alt-circle-down"></i> Connect Wallet
+                  {/*<i className="fas fa-arrow-alt-circle-down"></i> */}
+                  Create
                 </button>
               </li>
             </ul>
