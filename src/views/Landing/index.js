@@ -12,7 +12,7 @@ export default function Landing() {
     const vm = useViewModel();
     return (
         <>
-            <Navbar transparent />
+            <Navbar transparent connectWallet={vm.connectPhantom}/>
             <main>
                 <div className="relative pt-16 pb-32 flex content-center items-center justify-center min-h-screen-75">
                     <div
@@ -39,7 +39,6 @@ export default function Landing() {
                                     </p>
 
                                 </div>
-                                <button className="bg-green-500 text-white" onClick={vm.connectPhantom}>Connect</button>
                             </div>
                         </div>
                     </div>
