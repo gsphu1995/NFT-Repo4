@@ -9,7 +9,7 @@ const Select = () => {
                 { name: "Collection Two", value: "2" },
                 { name: "Collection Three", value: "3" },
                 { name: "Collection Four", value: "4" },
-                { name: "Collection Five", value: "5" },
+                { name: "Collection Five", value: "5" }
     ];
 
     const handleChange = (...args) => {
