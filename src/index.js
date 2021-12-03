@@ -15,6 +15,7 @@ import Auth from "layouts/Auth.js";
 import Landing from "views/Landing";
 import Profile from "views/Profile.js";
 import Index from "views/Index.js";
+import CreateAsset from "./views/CreateAsset";
 
 ReactDOM.render(
     <BrowserRouter>
@@ -26,6 +27,7 @@ ReactDOM.render(
             {/* add routes without layouts */}
             <Route path="/profile" exact component={Profile}/>
             <Route path="/" exact component={Landing}/>
+            <Route path="/asset/create" exact component={CreateAsset}/>
             {/* add redirect for first page */}
             <Redirect from="*" to="/"/>
         </Switch>
