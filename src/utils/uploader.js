@@ -38,26 +38,50 @@ const runUpload = async (data, tags, isUploadByChunk = false) => {
   return tx;
 }
 
-export default async function uploader(files, metadata, mintKey) {
+const readFile = (file) => {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader();  
+    reader.onload = () => {
+      resolve(reader.result)
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+export default async function uploader(files, metadataContent, mintKey) {
   key = await arweave.wallets.generate();
 
-  for (const file in files) {
-    let tags = {
-      'Content-Type': file.type,
-      'mint': mintKey,
-    };
-    const { id } = await runUpload(file, tags, true);
-    const imageUrl = id ? `https://arweave.net/${id}` : undefined;
-    console.log("imageUrl", imageUrl);
+  const file = files[0]
+  let tags = {
+    'Content-Type': file.type,
+    'mint': mintKey,
+  };
 
-    // console.log(metadata);
-    tags = {
-      'Content-Type': 'application/json',
-      'mint': mintKey,
-    };
-    const { id: metadataId } = await runUpload(metadata, tags);
-    
-    const metadataUrl = id ? `https://arweave.net/${metadataId}` : undefined;
-    return metadataUrl
+  const data = await readFile(file)
+  const { id } = await runUpload(data, tags, true)
+  const imageUrl = id ? `https://arweave.net/${id}` : undefined
+  console.log("imageUrl", imageUrl);
+
+  tags = {
+    'Content-Type': 'application/json',
+    'mint': mintKey,
+  };
+  const updatedMetadata = {
+    ...metadataContent,
+    image: imageUrl,
+    properties: {
+      ...metadataContent.properties,
+      files: [{
+        uri: imageUrl,
+        type: files[0].type
+      }]
+    }
   }
+  console.log('updatedMetadata:', updatedMetadata)
+  const metadataString = JSON.stringify(updatedMetadata);
+  const { id: metadataId } = await runUpload(metadataString, tags);
+  
+  const metadataUrl = id ? `https://arweave.net/${metadataId}` : undefined;
+  return { imageUrl, metadataUrl, updatedMetadata }
 };

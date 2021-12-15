@@ -7,7 +7,6 @@ import {
   deserializeUnchecked, BinaryReader, BinaryWriter, serialize,
 } from 'borsh';
 import { programIds } from './ids';
-import { toPublicKey } from './utils';
 
 export const METADATA_PREFIX = 'metadata';
 export const EDITION = 'edition';

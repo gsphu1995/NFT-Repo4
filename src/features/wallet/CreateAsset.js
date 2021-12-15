@@ -16,11 +16,13 @@ export default function CreateAsset() {
   const connection = useSelector(getConnection);
   const connected = useSelector(connectState);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState(null);
-  const [description, setDescription] = useState(null);
-  const [externalUrl, setExternalUrl] = useState(null);
-  const [supply, setSupply] = useState(null);
-  const [file, setFile] = useState([]);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [externalUrl, setExternalUrl] = useState('');
+  const [supply, setSupply] = useState(1);
+  const [file, setFile] = useState(null);
+  const [collectionName, setCollectionName] = useState('');
+  const [freeze, setFreeze] = useState('');
   
   //Mint NFT
   const create = useCallback(async () => {
@@ -42,13 +44,13 @@ export default function CreateAsset() {
     setLoading(true);
     extendBorsh();
 
-    let collection = null;
-    /*if (collectionFamily !== '' || collectionName !== '') {
+    let collection = null
+    if (collectionName) {
       collection = {
         name: collectionName,
-        family: collectionFamily,
+        family: 'Season 1',
       };
-    }*/
+    }
 
     const metadata = {
       animation_url: undefined,
@@ -80,10 +82,10 @@ export default function CreateAsset() {
     try {
       const { payperLink } = await mintNFT(connection, wallet, [file], metadata)
       if (payperLink) {
-        const win = window.open(payperLink, '_blank');
-        if (win != null) {
-          win.focus();
-        }
+        // const win = window.open(payperLink, '_blank');
+        // if (win != null) {
+        //   win.focus();
+        // }
       }
       console.log("success", payperLink)
     } catch (error) {
@@ -91,7 +93,7 @@ export default function CreateAsset() {
     }
 
     setLoading(false);
-  }, [connected, connection, name, description, externalUrl, file]);
+  }, [connected, connection, name, description, externalUrl, file, collectionName]);
 
   return (
     <>
@@ -187,6 +189,7 @@ export default function CreateAsset() {
                       underneath its image. Markdown syntax is supported.
                     </div>
                     <Input
+                      value={description}
                       placeholder={
                         "Provide a detailed description of your item"
                       }
@@ -197,7 +200,7 @@ export default function CreateAsset() {
                     <div className="text-xs leading-normal mt-0 mb-2 text-blueGray-400 font-bold uppercase">
                       This is the collection where your item will appear.
                     </div>
-                    <Select />
+                    <Select onChange={e => setCollectionName(e)}/>
                     <p className="font-bold mt-6">Supply</p>
                     <div className="text-xs leading-normal mt-0 mb-2 text-blueGray-400 font-bold uppercase">
                       The number of copies that can be minted. No gas cost to
@@ -216,6 +219,8 @@ export default function CreateAsset() {
                       storage.
                     </div>
                     <Input
+                      value={freeze}
+                      onChange={e => setFreeze(e.target.value)}
                       placeholder={
                         "To freeze your metadata, you must create your item first.\n"
                       }

@@ -2,22 +2,15 @@ import React from 'react';
 import SelectSearch from "react-select-search";
 import { useRef } from "react";
 
-const Select = () => {
+const Select = ({onChange}) => {
     const searchInput = useRef();
     const options = [
-                { name: "Collection One", value: "1" },
-                { name: "Collection Two", value: "2" },
-                { name: "Collection Three", value: "3" },
-                { name: "Collection Four", value: "4" },
-                { name: "Collection Five", value: "5" }
+                { name: "Test Collection 1", value: "Test Collection 1" },
+                { name: "Test Collection 2", value: "Test Collection 2" },
+                { name: "Test Collection 3", value: "Test Collection 3" },
+                { name: "Test Collection 4", value: "Test Collection 4" },
+                { name: "Test Collection 5", value: "Test Collection 5" }
     ];
-
-    const handleChange = (...args) => {
-        // searchInput.current.querySelector("input").value = "";
-        console.log("ARGS:", args);
-
-        console.log("CHANGE:");
-    };
 
     const handleFilter = (items) => {
         return (searchValue) => {
@@ -39,7 +32,7 @@ const Select = () => {
                 name="Workshop"
                 placeholder="Choose a collection"
                 search
-                onChange={handleChange}
+                onChange={onChange}
             />
     );
 };

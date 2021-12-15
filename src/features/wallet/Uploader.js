@@ -1,12 +1,12 @@
 import React from "react";
-import "react-dropzone-uploader/dist/styles.css";
 import Dropzone from "react-dropzone-uploader";
+import "react-dropzone-uploader/dist/styles.css";
 
-const Uploader = (props) => {
+const Uploader = ({handleImageChange}) => {
   // specify upload params and url for your files
-  const getUploadParams = ({ meta }) => {
-    return { url: "https://httpbin.org/post" };
-  };
+  // const getUploadParams = ({ meta }) => {
+  //   return { url: "https://httpbin.org/post" };
+  // };
 
   // called every time a file's `status` changes
   // const handleChangeStatus = ({ meta, file }, status) => {
@@ -14,17 +14,16 @@ const Uploader = (props) => {
   // };
 
   // receives array of files that are done uploading when submit button is clicked
-  const handleSubmit = (files) => {
-    console.log(files.map((f) => f.meta));
-  };
+  // const handleSubmit = (files) => {
+  //   console.log(files.map((f) => f.meta));
+  // };
 
   return (
     <Dropzone
       multiple={false}
-      onChangeStatus={props.handleImageChange}
-      onSubmit={handleSubmit}
+      onChangeStatus={handleImageChange}
       accept="image/*,audio/*,video/*"
-      inputContent={<p>Upload</p>}
+      inputContent="Upload"
     />
   );
 };

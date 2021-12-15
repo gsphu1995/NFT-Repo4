@@ -105,6 +105,7 @@ export default async function mintNFT(connection, wallet, files, metadata) {
     wallet.publicKey,
   );
 
+  console.log('metadataAccount', metadataAccount)
   console.log('Waiting for signature...')
 
   const { txid } = await sendTransactionWithRetry(
@@ -164,26 +165,26 @@ export default async function mintNFT(connection, wallet, files, metadata) {
 
   const payperLink = `https://sonar.watch/collectibles/${payerPublicKey.toString()}`
 
-  console.log('Uploading file...');
+  console.log('Uploading file...', metadataContent);
   toast('Uploading file...');
 
-  const metadataString = JSON.stringify(metadataContent);
-  const metadataUrl = await uploader(files, metadataString, mintKey);
+  const { metadataUrl, updatedMetadata } = await uploader(files, metadataContent, mintKey);
   console.log('metadataUrl', metadataUrl)
+  console.log('updatedMetadata~~~~~~~', updatedMetadata)
 
   if (metadataUrl && wallet.publicKey) {
     const updateInstructions = [];
     const updateSigners = [];
 
-    console.log('uploadFile4')
-    //const arweaveLink = `https://arweave.net/${metadataFile.transactionId}`;
+    //const arweaveLink = `https://arweave.net/${metadataFile.transactionId}`;    
     await updateMetadata(
       new Data({
-        name: metadata.name,
+        ...updatedMetadata,
         symbol: metadata.symbol,
+        name: metadata.name,
         uri: metadataUrl, //arweaveLink,
-        creators: metadata.creators,
         sellerFeeBasisPoints: metadata.sellerFeeBasisPoints,
+        creators: metadata.creators,
       }),
       undefined,
       undefined,

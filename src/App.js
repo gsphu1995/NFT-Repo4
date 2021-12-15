@@ -3,6 +3,8 @@ import {BrowserRouter, Route, Switch, Redirect} from "react-router-dom";
 import Home from 'features/home/Home';
 import Profile from 'features/profile/Profile.js';
 import CreateAsset from 'features/wallet/CreateAsset';
+import Marketplace from 'features/marketplace/Marketplace';
+import AssetDetail from 'features/assetdetail/AssetDetail';
 import Admin from 'layouts/Admin.js';
 import Auth from 'layouts/Auth.js';
 import './App.css';
@@ -20,6 +22,8 @@ function App() {
         <Route path="/profile" exact component={Profile}/>
         <Route path="/" exact component={Home}/>
         <Route path="/asset/create" exact component={CreateAsset}/>
+        <Route path="/marketplace" exact component={Marketplace}/>
+        <Route path="/asset/detail" exact component={AssetDetail}/>
         {/* add redirect for first page */}
         <Redirect from="*" to="/"/>
     </Switch>
