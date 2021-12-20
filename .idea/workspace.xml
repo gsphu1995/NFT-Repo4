@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="5afadd36-e449-4abe-8926-a5e588cde2a1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/components/Input.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/Select.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/views/CreateAsset/components/Uploader.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/views/CreateAsset/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/styles/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/styles/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Navbars/AuthNavbar.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Navbars/AuthNavbar.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/Index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/web/src/views/home/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/web/src/views/home/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,6 +56,10 @@
       <workItem from="1638377249561" duration="10490000" />
       <workItem from="1638432564665" duration="7486000" />
       <workItem from="1638508377895" duration="9886000" />
+      <workItem from="1639838834575" duration="3375000" />
+      <workItem from="1639854267952" duration="5565000" />
+      <workItem from="1639970691736" duration="6927000" />
+      <workItem from="1640013535980" duration="5170000" />
     </task>
     <servers />
   </component>
