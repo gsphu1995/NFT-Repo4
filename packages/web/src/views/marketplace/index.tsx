@@ -109,13 +109,13 @@ export const MarketplaceView = () => {
             </svg>
           </div>
         </section>
-        <section className="relative py-16 bg-blueGray-200">
+        <section className="relative py-2 bg-blueGray-200">
           <div className="container mx-auto px-4">
             <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg -mt-64">
                 <Sidebar />
                 <div className="absolute md:ml-64">
                     {/* <Dropdown /> bg-blueGray-100*/}
-                    <div className="flex flex-wrap px-2 py-2">
+                    <div className="nftlist flex flex-wrap px-3 py-3">
                       {!isLoading
                         ? items.map((m, idx) => {
                             const id = m.pubkey;
@@ -125,8 +125,8 @@ export const MarketplaceView = () => {
                                   key={id}
                                   pubkey={m.pubkey}
                                   preview={false}
-                                  height={250}
-                                  width={250}
+                                  height={150}
+                                  width={150}
                                 />
                               </Link>
                             );

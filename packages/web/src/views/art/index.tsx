@@ -155,7 +155,7 @@ export const ArtView = () => {
                                 style={{ textAlign: 'left', fontSize: '1.4rem' }}
                               >
                                 <Row>
-                                  <div style={{ fontWeight: 700, fontSize: '4rem' }}>
+                                  <div style={{ fontWeight: 700, fontSize: '2rem' }}>
                                     {art.title || <Skeleton paragraph={{ rows: 0 }} />}
                                   </div>
                                 </Row>
@@ -184,7 +184,7 @@ export const ArtView = () => {
                                               marginBottom: 5,
                                             }}
                                           >
-                                            <MetaAvatar creators={[creator]} size={64} />
+                                            <MetaAvatar creators={[creator]} size={30} />
                                             <div>
                                               <span className="creator-name">
                                                 {creator.name ||
