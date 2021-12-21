@@ -49,7 +49,7 @@ export const ArtSelector = (props: ArtSelectorProps) => {
   };
 
   return (
-    <>
+    <div className='create-new-item'>
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="my-masonry-grid"
@@ -74,7 +74,7 @@ export const ArtSelector = (props: ArtSelectorProps) => {
         {(allowMultiple || selectedItems.size === 0) && (
           <div
             className="ant-card ant-card-bordered ant-card-hoverable art-card"
-            style={{ width: 200, height: 300, display: 'flex' }}
+            style={{ width: "100%", height: 300, display: 'flex', marginTop: "30px" }}
             onClick={open}
           >
             <span className="text-center">Add an NFT</span>
@@ -151,6 +151,6 @@ export const ArtSelector = (props: ArtSelectorProps) => {
           </Button>
         </Row>
       </Modal>
-    </>
+    </div>
   );
 };

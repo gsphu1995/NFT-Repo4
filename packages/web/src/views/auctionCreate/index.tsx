@@ -743,7 +743,7 @@ const CategoryStep = (props: {
           First time listing on Metaplex? <a>Read our sellers' guide.</a>
         </p>
       </Row> */}
-      <Row justify='center'>
+      <Row justify='center' style={{paddingLeft: "10%"}}>
         <Col>
                                 {/* <button className="bg-lightBlue-500 text-white active:bg-blueGray-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">
                                   Timed auction
@@ -853,7 +853,7 @@ const InstantSaleStep = ({
   const shouldRenderSelect = attributes.items.length > 0;
 
   return (
-    <>
+    <div className='create-new-item'>
       <Row className="call-to-action" style={{ marginBottom: 0 }}>
         <h2>Select which item to sell:</h2>
       </Row>
@@ -944,7 +944,7 @@ const InstantSaleStep = ({
           </label>
         </Col>
       </Row>
-      <Row>
+      <Row className='continue-loyalty'>
         <Button
           type="primary"
           size="large"
@@ -956,7 +956,7 @@ const InstantSaleStep = ({
           Continue
         </Button>
       </Row>
-    </>
+    </div>
   );
 };
 
@@ -1027,7 +1027,7 @@ const CopiesStep = (props: {
           )}
         </Col>
       </Row>
-      <Row>
+      <Row className = "continue-terms">
         <Button
           type="primary"
           size="large"
@@ -1078,7 +1078,7 @@ const NumberOfWinnersStep = (props: {
           </label>
         </Col>
       </Row>
-      <Row>
+      <Row className='continue-loyalty'>
         <Button
           type="primary"
           size="large"
@@ -1176,7 +1176,7 @@ const PriceAuction = (props: {
           </label>
         </Col>
       </Row>
-      <Row>
+      <Row className='continue-loyalty'>
         <Button
           type="primary"
           size="large"
@@ -1337,7 +1337,7 @@ const InitialPhaseStep = (props: {
           )}
         </Col>
       </Row>
-      <Row>
+      <Row className='continue-royalty'>
         <Button
           type="primary"
           size="large"
@@ -1455,7 +1455,7 @@ const EndingPhaseAuction = (props: {
           </label>
         </Col>
       </Row>
-      <Row>
+      <Row className='continue-loyalty'>
         <Button
           type="primary"
           size="large"
@@ -1737,7 +1737,7 @@ const TierTableStep = (props: {
           </Button>
         </Col>
       </Row>
-      <Row>
+      <Row className='continue-royalty'>
         <Button
           type="primary"
           size="large"
@@ -1810,7 +1810,7 @@ const ParticipationStep = (props: {
           </label>
         </Col>
       </Row>
-      <Row>
+      <Row className='continue-royalty'>
         <Button
           type="primary"
           size="large"
@@ -1907,7 +1907,7 @@ const ReviewStep = (props: {
           }
         />
       </Row>
-      <Row>
+      <Row className='continue-loyalty'>
         <Button
           type="primary"
           size="large"

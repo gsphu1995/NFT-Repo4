@@ -201,7 +201,7 @@ export const ArtCreateView = () => {
                 )} */}
                 <Col span={24} {...(stepsVisible ? { md: 20 } : { md: 24 })} className="px-6">
                   {step === 0 && (
-                    <CategoryStep
+                    <CategoryStep                      
                       confirm={(category: MetadataCategory) => {
                         setAttributes({
                           ...attributes,
@@ -279,15 +279,14 @@ const CategoryStep = (props: {
 }) => {
   const { width } = useWindowDimensions();
   return (
-    <>
+    <div className='create-new-item'>
       <Row className="call-to-action">
         <h2>Create a new item</h2>
         {/* <p>
           First time creating on Metaplex?{' '}
           <a href="#">Read our creators’ guide.</a>
         </p> */}
-      </Row>
-      <Row justify={width < 768 ? 'center' : 'start'}>
+        <Row justify={width < 768 ? 'center' : 'center'}>
         <Col>
           <Row>
             <Button
@@ -351,7 +350,9 @@ const CategoryStep = (props: {
           </Row> */}
         </Col>
       </Row>
-    </>
+      </Row>
+      
+    </div>
   );
 };
 
@@ -417,7 +418,7 @@ const UploadStep = (props: {
   };
 
   return (
-    <>
+    <div className='create-new-item'>
       <Row className="call-to-action">
         <h2>Now, let's upload your creation</h2>
         {/* <p style={{ fontSize: '1.2rem' }}>
@@ -462,9 +463,9 @@ const UploadStep = (props: {
           }}
         >
           <div className="ant-upload-drag-icon">
-            <h3 style={{ fontWeight: 700 }}>
+            {/* <h3 style={{ fontWeight: 700 }}>
               Upload your cover image (PNG, JPG, GIF, SVG)
-            </h3>
+            </h3> */}
           </div>
           {coverArtError ? (
             <Text type="danger">{coverArtError}</Text>
@@ -550,7 +551,7 @@ const UploadStep = (props: {
           }}
         />
       </Form.Item>
-      <Row>
+      <Row className='continue-royalty'>
         <Button
           type="primary"
           size="large"
@@ -568,7 +569,6 @@ const UploadStep = (props: {
                       typeof f === 'string' || !f
                         ? 'unknown'
                         : f.type || getLast(f.name.split('.')) || 'unknown';
-
                     return {
                       uri,
                       type,
@@ -593,7 +593,7 @@ const UploadStep = (props: {
           Continue to Mint
         </Button>
       </Row>
-    </>
+    </div>
   );
 };
 
@@ -668,7 +668,7 @@ const InfoStep = (props: {
     );
   }, [creators]);
   return (
-    <>
+    <div className='create-new-item'>
       <Row className="call-to-action">
         <h2>Describe your item</h2>
         <p>
@@ -741,6 +741,7 @@ const InfoStep = (props: {
             <span className="field-title">Maximum Supply</span>
             <InputNumber
               placeholder="Quantity"
+              min={1} 
               onChange={(val: number) => {
                 props.setAttributes({
                   ...props.attributes,
@@ -790,11 +791,12 @@ const InfoStep = (props: {
                   <Form.Item>
                     <Button
                       type="dashed"
+                      className='add-attribute'
                       onClick={() => add()}
                       block
                       icon={<PlusOutlined />}
                     >
-                      Add attribute
+                      <span className='add-attribute'>Add attribute</span>
                     </Button>
                   </Form.Item>
                 </>
@@ -804,10 +806,10 @@ const InfoStep = (props: {
         </Col>
       </Row>
 
-      <Row>
+      <Row className='continue-royalty'>
         <Button
           type="primary"
-          size="large"
+          size="large"          
           onClick={() => {
             form.validateFields().then(values => {
               const nftAttributes = values.attributes;
@@ -832,7 +834,7 @@ const InfoStep = (props: {
           Continue to royalties
         </Button>
       </Row>
-    </>
+    </div>
   );
 };
 
@@ -1046,7 +1048,7 @@ const RoyaltiesStep = (props: {
           </Text>
         </Row>
       )}
-      <Row>
+      <Row className='continue-royalty'>
         <Button
           type="primary"
           size="large"
@@ -1140,7 +1142,7 @@ const LaunchStep = (props: {
   }, [files, metadata, setCost]);
 
   return (
-    <>
+    <div className='create-new-item'>
       <Row className="call-to-action">
         <h2>Launch your creation</h2>
         <p>
@@ -1176,7 +1178,7 @@ const LaunchStep = (props: {
           )}
         </Col>
       </Row>
-      <Row>
+      <Row className='continue-royalty'>
         <Button
           type="primary"
           size="large"
@@ -1194,7 +1196,7 @@ const LaunchStep = (props: {
           Pay with Credit Card
         </Button> */}
       </Row>
-    </>
+    </div>
   );
 };
 
@@ -1227,6 +1229,7 @@ const WaitingStep = (props: {
         flexDirection: 'column',
         alignItems: 'center',
       }}
+      className='mint-status-card'
     >
       <Spin size="large" />
       <Card>
