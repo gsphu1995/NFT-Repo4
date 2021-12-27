@@ -53,11 +53,11 @@ export const Banner = (props: {
             {props.actionComponent}
           </div>
           {props.children}
-          <div className="powered-by">
-            <span>
-              POWERED BY <b>METAPLEX</b>
-            </span>
-          </div>
+          {/*<div className="powered-by">*/}
+          {/*  <span>*/}
+          {/*    POWERED BY <b>METAPLEX</b>*/}
+          {/*  </span>*/}
+          {/*</div>*/}
         </div>
       </div>
     </>

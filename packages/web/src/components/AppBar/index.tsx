@@ -12,18 +12,19 @@ import {
   CurrentUserBadgeMobile,
 } from '../CurrentUserBadge';
 import { ConnectButton } from '@oyster/common';
+import { MobileNavbar } from '../MobileNavbar';
 
 const getDefaultLinkActions = (connected: boolean) => {
   return [
-    <Link to={`/explore`} key={'explore'}>
+    <Link to={`/`} key={'explore'}>
       <Button className="app-btn">Explore</Button>
     </Link>,
-    <Link to={`/marketplace`} key={'marketplace'}>
-      <Button className="app-btn">Marketplace</Button>
+    <Link to={`/artworks`} key={'artwork'}>
+      <Button className="app-btn">{connected ? 'My Items' : 'Artwork'}</Button>
     </Link>,
-    // <Link to={`/artists`} key={'artists'}>
-    //   <Button className="app-btn">Creators</Button>
-    // </Link>,
+    <Link to={`/artists`} key={'artists'}>
+      <Button className="app-btn">Creators</Button>
+    </Link>,
   ];
 };
 
@@ -41,7 +42,7 @@ const DefaultActions = ({ vertical = false }: { vertical?: boolean }) => {
   );
 };
 
-const MetaplexMenu = () => {
+export const MetaplexMenu = () => {
   const { width } = useWindowDimensions();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const { connected } = useWallet();
@@ -50,7 +51,7 @@ const MetaplexMenu = () => {
     return (
       <>
         <Modal
-          title={<img src={'/img/ACKCS-Logo.png'} />}
+          title={<img src={'/ackcs-logo-transparent.png'} style={{ width: "150px", height: "auto"}}/>}
           visible={isModalVisible}
           footer={null}
           className={'modal-box'}
@@ -109,7 +110,7 @@ const MetaplexMenu = () => {
 export const LogoLink = () => {
   return (
     <Link to={`/`}>
-      <img alt="..." src={'/img/ACKCS-Logo.png'} className="w-full shadow-lg max-w-100-px z-3" />
+      <img src={'/ackcs-logo-transparent.png'} style={{ width: "150px", height: "auto"}}/>
     </Link>
   );
 };
@@ -118,10 +119,7 @@ export const AppBar = () => {
   const { connected } = useWallet();
   return (
     <>
-      <div id="mobile-navbar">
-        <LogoLink />
-        <MetaplexMenu />
-      </div>
+      <MobileNavbar />
       <div id="desktop-navbar">
         <div className="app-left">
           <LogoLink />
@@ -129,9 +127,9 @@ export const AppBar = () => {
           <MetaplexMenu />
         </div>
         <div className="app-right">
-          {/* {!connected && (
+          {!connected && (
             <HowToBuyModal buttonClassName="modal-button-default" />
-          )} */}
+          )}
           {!connected && (
             <ConnectButton style={{ height: 48 }} allowWalletChange />
           )}
@@ -142,7 +140,7 @@ export const AppBar = () => {
                 showAddress={true}
                 iconSize={24}
               />
-              {/* <Notifications /> */}
+              <Notifications />
               <Cog />
             </>
           )}
