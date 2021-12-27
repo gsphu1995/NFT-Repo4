@@ -20,11 +20,11 @@ export const Footer = () => {
     const submit = (values: any) => {
       email = values.user.email;
       email &&
-        email.indexOf('@') > -1 &&
-        props.onValidated({
-          EMAIL: email,
-          // NAME: name.value
-        });
+      email.indexOf('@') > -1 &&
+      props.onValidated({
+        EMAIL: email,
+        // NAME: name.value
+      });
     };
     return (
       <>
@@ -96,7 +96,7 @@ export const Footer = () => {
             <div className="sub-header">
               {LABELS.STORE_NAME} NFT Marketplace
             </div>
-            <div className="footer-link">Powered by Metaplex and Solana</div>
+
           </div>
         ) : null}
         {footerConf.components.map(component => (

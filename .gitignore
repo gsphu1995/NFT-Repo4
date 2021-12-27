@@ -36,3 +36,5 @@ typings/
 .yarn-integrity
 
 .idea/*
+build/
+.idea/

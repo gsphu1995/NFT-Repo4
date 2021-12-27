@@ -23,7 +23,6 @@ import {
   MAX_METADATA_LEN,
   useConnection,
   IMetadataExtension,
-  Attribute,
   MetadataCategory,
   useConnectionConfig,
   Creator,
@@ -32,8 +31,9 @@ import {
   MetaplexOverlay,
   MetadataFile,
   StringPublicKey,
+  WRAPPED_SOL_MINT,
   getAssetCostToStore,
-  LAMPORT_MULTIPLIER
+  LAMPORT_MULTIPLIER,
 } from '@oyster/common';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection } from '@solana/web3.js';
@@ -47,7 +47,7 @@ import {
   MinusCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import Footer from "../../components/ACKCS/Footers/Footer.js";
+import { useTokenList } from '../../contexts/tokenList';
 
 const { Step } = Steps;
 const { Dragger } = Upload;
@@ -55,7 +55,7 @@ const { Text } = Typography;
 
 export const ArtCreateView = () => {
   const connection = useConnection();
-  const { env } = useConnectionConfig();
+  const { endpoint } = useConnectionConfig();
   const wallet = useWallet();
   const [alertMessage, setAlertMessage] = useState<string>();
   const { step_param }: { step_param: string } = useParams();
@@ -122,7 +122,7 @@ export const ArtCreateView = () => {
       const _nft = await mintNFT(
         connection,
         wallet,
-        env,
+        endpoint.name,
         files,
         metadata,
         setNFTcreateProgress,
@@ -140,136 +140,94 @@ export const ArtCreateView = () => {
 
   return (
     <>
-      <main className="profile-page">
-        <section className="relative block h-500-px">
-          <div
-            className="absolute top-0 w-full h-full bg-center bg-cover"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1499336315816-097655dcfbda?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2710&q=80')",
-            }}
-          >
-            <span
-              id="blackOverlay"
-              className="w-full h-full absolute opacity-50 bg-black"
-            ></span>
-          </div>
-          <div
-            className="top-auto bottom-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden h-70-px"
-            style={{ transform: "translateZ(0)" }}
-          >
-            <svg
-              className="absolute bottom-0 overflow-hidden"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-              version="1.1"
-              viewBox="0 0 2560 100"
-              x="0"
-              y="0"
+      <Row className={'creator-base-page'} style={{ paddingTop: 50 }}>
+        {stepsVisible && (
+          <Col span={24} md={4}>
+            <Steps
+              progressDot
+              direction={width < 768 ? 'horizontal' : 'vertical'}
+              current={step}
+              style={{
+                width: 'fit-content',
+                margin: '0 auto 30px auto',
+                overflowX: 'auto',
+                maxWidth: '100%',
+              }}
             >
-              <polygon
-                className="text-blueGray-200 fill-current"
-                points="2560 0 2560 100 0 100"
-              ></polygon>
-            </svg>
-          </div>
-        </section>
-        <section className="relative py-16 bg-blueGray-200">
-          <div className="container mx-auto px-4">
-            <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg -mt-64">
-              <Row className={'creator-base-page'} style={{ paddingTop: 50 }}>
-                {/* {stepsVisible && (
-                  <Col span={24} md={4}>
-                    <Steps
-                      progressDot
-                      direction={width < 768 ? 'horizontal' : 'vertical'}
-                      current={step}
-                      style={{
-                        width: 'fit-content',
-                        margin: '0 auto 30px auto',
-                        overflowX: 'auto',
-                        maxWidth: '100%',
-                      }}
-                    >
-                      <Step title="Category" />
-                      <Step title="Upload" />
-                      <Step title="Info" />
-                      <Step title="Royalties" />
-                      <Step title="Launch" />
-                    </Steps>
-                  </Col>
-                )} */}
-                <Col span={24} {...(stepsVisible ? { md: 20 } : { md: 24 })} className="px-6">
-                  {step === 0 && (
-                    <CategoryStep                      
-                      confirm={(category: MetadataCategory) => {
-                        setAttributes({
-                          ...attributes,
-                          properties: {
-                            ...attributes.properties,
-                            category,
-                          },
-                        });
-                        gotoStep(1);
-                      }}
-                    />
-                  )}
-                  {step === 1 && (
-                    <UploadStep
-                      attributes={attributes}
-                      setAttributes={setAttributes}
-                      files={files}
-                      setFiles={setFiles}
-                      confirm={() => gotoStep(2)}
-                    />
-                  )}
+              <Step title="Category" />
+              <Step title="Upload" />
+              <Step title="Info" />
+              <Step title="Royalties" />
+              <Step title="Launch" />
+            </Steps>
+          </Col>
+        )}
+        <Col span={24} {...(stepsVisible ? { md: 20 } : { md: 24 })}>
+          {step === 0 && (
+            <CategoryStep
+              confirm={(category: MetadataCategory) => {
+                setAttributes({
+                  ...attributes,
+                  properties: {
+                    ...attributes.properties,
+                    category,
+                  },
+                });
+                gotoStep(1);
+              }}
+            />
+          )}
+          {step === 1 && (
+            <UploadStep
+              attributes={attributes}
+              setAttributes={setAttributes}
+              files={files}
+              setFiles={setFiles}
+              confirm={() => gotoStep(2)}
+            />
+          )}
 
-                  {step === 2 && (
-                    <InfoStep
-                      attributes={attributes}
-                      files={files}
-                      setAttributes={setAttributes}
-                      confirm={() => gotoStep(3)}
-                    />
-                  )}
-                  {step === 3 && (
-                    <RoyaltiesStep
-                      attributes={attributes}
-                      confirm={() => gotoStep(4)}
-                      setAttributes={setAttributes}
-                    />
-                  )}
-                  {step === 4 && (
-                    <LaunchStep
-                      attributes={attributes}
-                      files={files}
-                      confirm={() => gotoStep(5)}
-                      connection={connection}
-                    />
-                  )}
-                  {step === 5 && (
-                    <WaitingStep
-                      mint={mint}
-                      minting={isMinting}
-                      step={nftCreateProgress}
-                      confirm={() => gotoStep(6)}
-                    />
-                  )}
-                  {/* {0 < step && step < 5 && (
-                    <div style={{ margin: 'auto', width: 'fit-content' }}>
-                      <Button onClick={() => gotoStep(step - 1)}>Back</Button>
-                    </div>
-                  )} */}
-                </Col>
-              </Row>
-              <MetaplexOverlay visible={step === 6}>
-                <Congrats nft={nft} alert={alertMessage} />
-              </MetaplexOverlay>
+          {step === 2 && (
+            <InfoStep
+              attributes={attributes}
+              files={files}
+              setAttributes={setAttributes}
+              confirm={() => gotoStep(3)}
+            />
+          )}
+          {step === 3 && (
+            <RoyaltiesStep
+              attributes={attributes}
+              confirm={() => gotoStep(4)}
+              setAttributes={setAttributes}
+            />
+          )}
+          {step === 4 && (
+            <LaunchStep
+              attributes={attributes}
+              files={files}
+              confirm={() => gotoStep(5)}
+              connection={connection}
+            />
+          )}
+          {step === 5 && (
+            <WaitingStep
+              mint={mint}
+              minting={isMinting}
+              step={nftCreateProgress}
+              confirm={() => gotoStep(6)}
+            />
+          )}
+          {0 < step && step < 5 && (
+            <div style={{ margin: 'auto', width: 'fit-content' }}>
+              <Button onClick={() => gotoStep(step - 1)}>Back</Button>
             </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
+          )}
+        </Col>
+      </Row>
+      <MetaplexOverlay visible={step === 6}>
+        <Congrats nft={nft} alert={alertMessage} />
+      </MetaplexOverlay>
     </>
   );
 };
@@ -279,14 +237,15 @@ const CategoryStep = (props: {
 }) => {
   const { width } = useWindowDimensions();
   return (
-    <div className='create-new-item'>
+    <>
       <Row className="call-to-action">
         <h2>Create a new item</h2>
-        {/* <p>
+        <p>
           First time creating on Metaplex?{' '}
           <a href="#">Read our creators’ guide.</a>
-        </p> */}
-        <Row justify={width < 768 ? 'center' : 'center'}>
+        </p>
+      </Row>
+      <Row justify={width < 768 ? 'center' : 'start'}>
         <Col>
           <Row>
             <Button
@@ -300,7 +259,7 @@ const CategoryStep = (props: {
               </div>
             </Button>
           </Row>
-          {/* <Row>
+          <Row>
             <Button
               className="type-btn"
               size="large"
@@ -347,12 +306,10 @@ const CategoryStep = (props: {
                 <div className="type-btn-description">HTML</div>
               </div>
             </Button>
-          </Row> */}
+          </Row>
         </Col>
       </Row>
-      </Row>
-      
-    </div>
+    </>
   );
 };
 
@@ -371,7 +328,7 @@ const UploadStep = (props: {
 
   const [customURL, setCustomURL] = useState<string>('');
   const [customURLErr, setCustomURLErr] = useState<string>('');
-  const disableContinue = !coverFile || !!customURLErr;
+  const disableContinue = !(coverFile || (!customURLErr && !!customURL));
 
   useEffect(() => {
     props.setAttributes({
@@ -417,17 +374,23 @@ const UploadStep = (props: {
     }
   };
 
+  const { category } = props.attributes.properties;
+
+  const urlPlaceholder = `http://example.com/path/to/${
+    category === MetadataCategory.Image ? 'image' : 'file'
+  }`;
+
   return (
-    <div className='create-new-item'>
+    <>
       <Row className="call-to-action">
         <h2>Now, let's upload your creation</h2>
-        {/* <p style={{ fontSize: '1.2rem' }}>
+        <p style={{ fontSize: '1.2rem' }}>
           Your file will be uploaded to the decentralized web via Arweave.
           Depending on file type, can take up to 1 minute. Arweave is a new type
           of storage that backs data with sustainable and perpetual endowments,
           allowing users and developers to truly store data forever – for the
           very first time.
-        </p> */}
+        </p>
       </Row>
       <Row className="content-action">
         <h3>Upload a cover image (PNG, JPG, GIF, SVG)</h3>
@@ -435,6 +398,10 @@ const UploadStep = (props: {
           accept=".png,.jpg,.gif,.mp4,.svg"
           style={{ padding: 20, background: 'rgba(255, 255, 255, 0.08)' }}
           multiple={false}
+          onRemove={() => {
+            setMainFile(undefined);
+            setCoverFile(undefined);
+          }}
           customRequest={info => {
             // dont upload files here, handled outside of the control
             info?.onSuccess?.({}, null as any);
@@ -463,9 +430,9 @@ const UploadStep = (props: {
           }}
         >
           <div className="ant-upload-drag-icon">
-            {/* <h3 style={{ fontWeight: 700 }}>
+            <h3 style={{ fontWeight: 700 }}>
               Upload your cover image (PNG, JPG, GIF, SVG)
-            </h3> */}
+            </h3>
           </div>
           {coverArtError ? (
             <Text type="danger">{coverArtError}</Text>
@@ -529,7 +496,7 @@ const UploadStep = (props: {
       >
         <Input
           disabled={!!mainFile}
-          placeholder="http://example.com/path/to/image"
+          placeholder={urlPlaceholder}
           value={customURL}
           onChange={ev => setCustomURL(ev.target.value)}
           onFocus={() => setCustomURLErr('')}
@@ -551,12 +518,12 @@ const UploadStep = (props: {
           }}
         />
       </Form.Item>
-      <Row className='continue-royalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
           disabled={disableContinue}
-          onClick={() => {
+          onClick={async () => {
             props.setAttributes({
               ...props.attributes,
               properties: {
@@ -569,20 +536,23 @@ const UploadStep = (props: {
                       typeof f === 'string' || !f
                         ? 'unknown'
                         : f.type || getLast(f.name.split('.')) || 'unknown';
+
                     return {
                       uri,
                       type,
                     } as MetadataFile;
                   }),
               },
-              image: coverFile?.name || '',
+              image: coverFile?.name || customURL || '',
               animation_url:
                 props.attributes.properties?.category !==
                   MetadataCategory.Image && customURL
                   ? customURL
                   : mainFile && mainFile.name,
             });
-            const files = [coverFile, mainFile].filter(f => f) as File[];
+            const url = await fetch(customURL).then(res => res.blob());
+            const files = [coverFile, mainFile, customURL ? new File([url], customURL) : '']
+              .filter(f => f) as File[];
 
             props.setFiles(files);
             props.confirm();
@@ -593,7 +563,7 @@ const UploadStep = (props: {
           Continue to Mint
         </Button>
       </Row>
-    </div>
+    </>
   );
 };
 
@@ -668,7 +638,7 @@ const InfoStep = (props: {
     );
   }, [creators]);
   return (
-    <div className='create-new-item'>
+    <>
       <Row className="call-to-action">
         <h2>Describe your item</h2>
         <p>
@@ -681,11 +651,13 @@ const InfoStep = (props: {
           {props.attributes.image && (
             <ArtCard
               image={image}
-              animationURL={animation_url}
+              animationURL={props.attributes.animation_url}
               category={props.attributes.properties?.category}
               name={props.attributes.name}
               symbol={props.attributes.symbol}
               small={true}
+              artView={!(props.files.length > 1)}
+              className="art-create-card"
             />
           )}
         </Col>
@@ -696,6 +668,7 @@ const InfoStep = (props: {
               autoFocus
               className="input"
               placeholder="Max 50 characters"
+              maxLength={50}
               allowClear
               value={props.attributes.name}
               onChange={info =>
@@ -706,11 +679,12 @@ const InfoStep = (props: {
               }
             />
           </label>
-          {/* <label className="action-field">
+          <label className="action-field">
             <span className="field-title">Symbol</span>
             <Input
               className="input"
               placeholder="Max 10 characters"
+              maxLength={10}
               allowClear
               value={props.attributes.symbol}
               onChange={info =>
@@ -720,13 +694,14 @@ const InfoStep = (props: {
                 })
               }
             />
-          </label> */}
+          </label>
 
           <label className="action-field">
             <span className="field-title">Description</span>
             <Input.TextArea
               className="input textarea"
               placeholder="Max 500 characters"
+              maxLength={500}
               value={props.attributes.description}
               onChange={info =>
                 props.setAttributes({
@@ -741,7 +716,6 @@ const InfoStep = (props: {
             <span className="field-title">Maximum Supply</span>
             <InputNumber
               placeholder="Quantity"
-              min={1} 
               onChange={(val: number) => {
                 props.setAttributes({
                   ...props.attributes,
@@ -791,12 +765,11 @@ const InfoStep = (props: {
                   <Form.Item>
                     <Button
                       type="dashed"
-                      className='add-attribute'
                       onClick={() => add()}
                       block
                       icon={<PlusOutlined />}
                     >
-                      <span className='add-attribute'>Add attribute</span>
+                      Add attribute
                     </Button>
                   </Form.Item>
                 </>
@@ -806,10 +779,10 @@ const InfoStep = (props: {
         </Col>
       </Row>
 
-      <Row className='continue-royalty'>
+      <Row>
         <Button
           type="primary"
-          size="large"          
+          size="large"
           onClick={() => {
             form.validateFields().then(values => {
               const nftAttributes = values.attributes;
@@ -834,7 +807,7 @@ const InfoStep = (props: {
           Continue to royalties
         </Button>
       </Row>
-    </div>
+    </>
   );
 };
 
@@ -1048,7 +1021,7 @@ const RoyaltiesStep = (props: {
           </Text>
         </Row>
       )}
-      <Row className='continue-royalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -1142,7 +1115,7 @@ const LaunchStep = (props: {
   }, [files, metadata, setCost]);
 
   return (
-    <div className='create-new-item'>
+    <>
       <Row className="call-to-action">
         <h2>Launch your creation</h2>
         <p>
@@ -1155,11 +1128,13 @@ const LaunchStep = (props: {
           {props.attributes.image && (
             <ArtCard
               image={image}
-              animationURL={animation_url}
+              animationURL={props.attributes.animation_url}
               category={props.attributes.properties?.category}
               name={props.attributes.name}
               symbol={props.attributes.symbol}
               small={true}
+              artView={props.files[1]?.type === 'unknown'}
+              className="art-create-card"
             />
           )}
         </Col>
@@ -1172,13 +1147,19 @@ const LaunchStep = (props: {
             suffix="%"
           />
           {cost ? (
-            <AmountLabel title="Cost to Create" amount={cost.toFixed(5)} />
+            <AmountLabel
+              title="Cost to Create"
+              amount={cost.toFixed(5)}
+              tokenInfo={useTokenList().tokenMap.get(
+                WRAPPED_SOL_MINT.toString(),
+              )}
+            />
           ) : (
             <Spin />
           )}
         </Col>
       </Row>
-      <Row className='continue-royalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -1187,16 +1168,16 @@ const LaunchStep = (props: {
         >
           Pay with SOL
         </Button>
-        {/* <Button
+        <Button
           disabled={true}
           size="large"
           onClick={props.confirm}
           className="action-btn"
         >
           Pay with Credit Card
-        </Button> */}
+        </Button>
       </Row>
-    </div>
+    </>
   );
 };
 
@@ -1229,7 +1210,6 @@ const WaitingStep = (props: {
         flexDirection: 'column',
         alignItems: 'center',
       }}
-      className='mint-status-card'
     >
       <Spin size="large" />
       <Card>
@@ -1328,13 +1308,13 @@ const Congrats = (props: {
     <>
       <div className="waiting-title">Congratulations, you created an NFT!</div>
       <div className="congrats-button-container">
-        {/* <Button
+        <Button
           className="metaplex-button"
           onClick={_ => window.open(newTweetURL(), '_blank')}
         >
           <span>Share it on Twitter</span>
           <span>&gt;</span>
-        </Button> */}
+        </Button>
         <Button
           className="metaplex-button"
           onClick={_ =>

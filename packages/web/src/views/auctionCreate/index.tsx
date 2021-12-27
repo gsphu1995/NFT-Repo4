@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import {
   Divider,
   Steps,
@@ -15,7 +15,7 @@ import {
   Checkbox,
 } from 'antd';
 import { ArtCard } from './../../components/ArtCard';
-import { QUOTE_MINT } from './../../constants';
+import { MINIMUM_SAFE_FEE_AUCTION_CREATION, QUOTE_MINT } from './../../constants';
 import { Confetti } from './../../components/Confetti';
 import { ArtSelector } from './artSelector';
 import {
@@ -31,10 +31,13 @@ import {
   IPartialCreateAuctionArgs,
   MetadataKey,
   StringPublicKey,
+  WRAPPED_SOL_MINT,
+  shortenAddress,
+  useNativeAccount,
 } from '@oyster/common';
-import { Connection, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { MintLayout } from '@solana/spl-token';
+import { MintInfo, MintLayout } from '@solana/spl-token';
 import { useHistory, useParams } from 'react-router-dom';
 import { capitalize } from 'lodash';
 import {
@@ -54,7 +57,11 @@ import { useMeta } from '../../contexts';
 import useWindowDimensions from '../../utils/layout';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { SystemProgram } from '@solana/web3.js';
-import Footer from "../../components/ACKCS/Footers/Footer.js";
+import TokenDialog, { TokenButton } from '../../components/TokenDialog';
+import { useTokenList } from '../../contexts/tokenList';
+import { mintTo } from '@project-serum/serum/lib/token-instructions';
+import { TokenInfo } from '@solana/spl-token-registry'
+import { FundsIssueModal } from "../../components/FundsIssueModal";
 
 const { Option } = Select;
 const { Step } = Steps;
@@ -131,6 +138,10 @@ export interface AuctionState {
 
   instantSalePrice?: number;
   instantSaleType?: InstantSaleType;
+
+  quoteMintAddress: string;
+  quoteMintInfo: MintInfo;
+  quoteMintInfoExtended: TokenInfo;
 }
 
 export const AuctionCreateView = () => {
@@ -162,12 +173,20 @@ export const AuctionCreateView = () => {
     winnersCount: 1,
     startSaleTS: undefined,
     startListTS: undefined,
+    quoteMintAddress: '',
+    //@ts-ignore
+    quoteMintInfo: undefined,
+    //@ts-ignore
+    quoteMintInfoExtended: undefined,
   });
 
   const [tieredAttributes, setTieredAttributes] = useState<TieredAuctionState>({
     items: [],
     tiers: [],
   });
+  const [quoteMintAddress, setQuoteMintAddress] = useState<string>()
+  const [quoteMintInfo, setQuoteMintInfo] = useState<MintInfo>()
+  const [quoteMintInfoExtended, setQuoteMintInfoExtended] = useState<TokenInfo>()
 
   useEffect(() => {
     if (step_param) setStep(parseInt(step_param));
@@ -181,6 +200,7 @@ export const AuctionCreateView = () => {
 
   const createAuction = async () => {
     let winnerLimit: WinnerLimit;
+    //const mint = attributes.quoteMintInfo
     if (
       attributes.category === AuctionCategory.InstantSale &&
       attributes.instantSaleType === InstantSaleType.Open
@@ -202,7 +222,6 @@ export const AuctionCreateView = () => {
 
       if (items.length > 0) {
         const item = items[0];
-
         if (!editions) {
           item.winningConfigType =
             item.metadata.info.updateAuthority ===
@@ -437,6 +456,9 @@ export const AuctionCreateView = () => {
       attributes.instantSalePrice &&
       attributes.priceFloor === attributes.instantSalePrice;
 
+    const LAMPORTS_PER_TOKEN = attributes.quoteMintAddress == WRAPPED_SOL_MINT.toBase58()? LAMPORTS_PER_SOL
+      : Math.pow(10, attributes.quoteMintInfo.decimals || 0)
+
     const auctionSettings: IPartialCreateAuctionArgs = {
       winners: winnerLimit,
       endAuctionAt: isInstantSale
@@ -463,15 +485,15 @@ export const AuctionCreateView = () => {
         type: attributes.priceFloor
           ? PriceFloorType.Minimum
           : PriceFloorType.None,
-        minPrice: new BN((attributes.priceFloor || 0) * LAMPORTS_PER_SOL),
+        minPrice: new BN((attributes.priceFloor || 0) * LAMPORTS_PER_TOKEN),
       }),
-      tokenMint: QUOTE_MINT.toBase58(),
+      tokenMint: attributes.quoteMintAddress,
       gapTickSizePercentage: attributes.tickSizeEndingPhase || null,
       tickSize: attributes.priceTick
-        ? new BN(attributes.priceTick * LAMPORTS_PER_SOL)
+        ? new BN(attributes.priceTick * LAMPORTS_PER_TOKEN)
         : null,
       instantSalePrice: attributes.instantSalePrice
-        ? new BN((attributes.instantSalePrice || 0) * LAMPORTS_PER_SOL)
+        ? new BN((attributes.instantSalePrice || 0) * LAMPORTS_PER_TOKEN)
         : null,
       name: null,
     };
@@ -495,7 +517,7 @@ export const AuctionCreateView = () => {
       auctionSettings,
       safetyDepositDrafts,
       participationSafetyDepositDraft,
-      QUOTE_MINT.toBase58(),
+      attributes.quoteMintAddress,
       storeIndexer,
     );
     setAuctionObj(_auctionObj);
@@ -652,81 +674,37 @@ export const AuctionCreateView = () => {
 
   return (
     <>
-      <main className="profile-page">
-        <section className="relative block h-500-px">
-          <div
-            className="absolute top-0 w-full h-full bg-center bg-cover"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1499336315816-097655dcfbda?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2710&q=80')",
-            }}
-          >
-            <span
-              id="blackOverlay"
-              className="w-full h-full absolute opacity-50 bg-black"
-            ></span>
-          </div>
-          <div
-            className="top-auto bottom-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden h-70-px"
-            style={{ transform: "translateZ(0)" }}
-          >
-            <svg
-              className="absolute bottom-0 overflow-hidden"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-              version="1.1"
-              viewBox="0 0 2560 100"
-              x="0"
-              y="0"
+      <Row className="creator-base-page" style={{ paddingTop: 50 }}>
+        {stepsVisible && (
+          <Col span={24} md={4}>
+            <Steps
+              progressDot
+              direction={width < 768 ? 'horizontal' : 'vertical'}
+              current={step}
+              style={{
+                width: 'fit-content',
+                margin: '0 auto 30px auto',
+                overflowX: 'auto',
+                maxWidth: '100%',
+              }}
             >
-              <polygon
-                className="text-blueGray-200 fill-current"
-                points="2560 0 2560 100 0 100"
-              ></polygon>
-            </svg>
-          </div>
-        </section>
-        <section className="relative py-16 bg-blueGray-200">
-          <div className="container mx-auto px-4">
-            <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg -mt-64">
-                <div className="container mx-auto px-4 mt-10 mb-8">
-                    <Row className="creator-base-page" style={{ paddingTop: 50 }}>
-                      {/* {stepsVisible && (
-                        <Col span={24} md={4}>
-                          <Steps
-                            progressDot
-                            direction={width < 768 ? 'horizontal' : 'vertical'}
-                            current={step}
-                            style={{
-                              width: 'fit-content',
-                              margin: '0 auto 30px auto',
-                              overflowX: 'auto',
-                              maxWidth: '100%',
-                            }}
-                          >
-                            {stepsByCategory[attributes.category]
-                              .filter(_ => !!_[0])
-                              .map((step, idx) => (
-                                <Step title={step[0]} key={idx} />
-                              ))}
-                          </Steps>
-                        </Col>
-                      )} */}
-                      <Col span={24} {...(stepsVisible ? { md: 20 } : { md: 24 })}>
-                        {stepsByCategory[attributes.category][step][1]}
-                        {/* {0 < step && stepsVisible && (
-                          <div style={{ margin: 'auto', width: 'fit-content' }}>
-                            <Button onClick={() => gotoNextStep(step - 1)}>Back</Button>
-                          </div>
-                        )} */}
-                      </Col>
-                    </Row>
-                </div>
+              {stepsByCategory[attributes.category]
+                .filter(_ => !!_[0])
+                .map((step, idx) => (
+                  <Step title={step[0]} key={idx} />
+                ))}
+            </Steps>
+          </Col>
+        )}
+        <Col span={24} {...(stepsVisible ? { md: 20 } : { md: 24 })}>
+          {stepsByCategory[attributes.category][step][1]}
+          {0 < step && stepsVisible && (
+            <div style={{ margin: 'auto', width: 'fit-content' }}>
+              <Button onClick={() => gotoNextStep(step - 1)}>Back</Button>
             </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
+          )}
+        </Col>
+      </Row>
     </>
   );
 };
@@ -737,20 +715,14 @@ const CategoryStep = (props: {
   const { width } = useWindowDimensions();
   return (
     <>
-      {/* <Row className="call-to-action">
+      <Row className="call-to-action">
         <h2>List an item</h2>
         <p>
           First time listing on Metaplex? <a>Read our sellers' guide.</a>
         </p>
-      </Row> */}
-      <Row justify='center' style={{paddingLeft: "10%"}}>
+      </Row>
+      <Row justify={width < 768 ? 'center' : 'start'}>
         <Col>
-                                {/* <button className="bg-lightBlue-500 text-white active:bg-blueGray-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">
-                                  Timed auction
-                                </button>
-                                <button className="bg-lightBlue-500 text-white active:bg-blueGray-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">
-                                  Fixed price sell
-                                </button> */}
           <Row>
             <Button
               className="type-btn"
@@ -758,14 +730,14 @@ const CategoryStep = (props: {
               onClick={() => props.confirm(AuctionCategory.InstantSale)}
             >
               <div>
-                <div>Fixed price sell</div>
-                {/* <div className="type-btn-description">
+                <div>Instant Sale</div>
+                <div className="type-btn-description">
                   At a fixed price, sell a single Master NFT or copies of it
-                </div> */}
+                </div>
               </div>
             </Button>
           </Row>
-          {/* <Row>
+          <Row>
             <Button
               className="type-btn"
               size="large"
@@ -792,7 +764,7 @@ const CategoryStep = (props: {
                 </div>
               </div>
             </Button>
-          </Row> */}
+          </Row>
           <Row>
             <Button
               className="type-btn"
@@ -800,15 +772,15 @@ const CategoryStep = (props: {
               onClick={() => props.confirm(AuctionCategory.Tiered)}
             >
               <div>
-                <div>Timed auction</div>
-                {/* <div className="type-btn-description">
+                <div>Tiered Auction</div>
+                <div className="type-btn-description">
                   Participants get unique rewards based on their leaderboard
                   rank
-                </div> */}
+                </div>
               </div>
             </Button>
           </Row>
-          {/* <Row>
+          <Row>
             <Button
               className="type-btn"
               size="large"
@@ -822,7 +794,7 @@ const CategoryStep = (props: {
                 </div>
               </div>
             </Button>
-          </Row> */}
+          </Row>
         </Col>
       </Row>
     </>
@@ -838,9 +810,30 @@ const InstantSaleStep = ({
   setAttributes: (attr: AuctionState) => void;
   confirm: () => void;
 }) => {
+  const [showTokenDialog, setShowTokenDialog] = useState(false);
+  const [mint, setMint] = useState<PublicKey>(WRAPPED_SOL_MINT)
+  // give default value to mint
+
+  const { hasOtherTokens, tokenMap} = useTokenList()
+
+  // give default value to mint
+  const mintInfo = tokenMap.get((!mint? QUOTE_MINT.toString(): mint.toString()))
+
+  attributes.quoteMintAddress = mint? mint.toBase58(): QUOTE_MINT.toBase58()
+
+  if (attributes.quoteMintAddress) {
+    attributes.quoteMintInfo = useMint(attributes.quoteMintAddress)!
+    attributes.quoteMintInfoExtended = useTokenList().tokenMap.get(attributes.quoteMintAddress)!
+  }
+
+  //console.log("OBJ MINT", mint.toBase58())
+  const isMasterEdition = !!attributes?.items?.[0]?.masterEdition;
+
   const copiesEnabled = useMemo(
-    () => !!attributes?.items?.[0]?.masterEdition?.info?.maxSupply,
-    [attributes?.items?.[0]],
+    () => {
+      const maxSupply = attributes?.items?.[0]?.masterEdition?.info?.maxSupply;
+      return !!maxSupply && maxSupply.toNumber() > 0;
+    },[attributes?.items?.[0]]
   );
   const artistFilter = useCallback(
     (i: SafetyDepositDraft) =>
@@ -853,7 +846,7 @@ const InstantSaleStep = ({
   const shouldRenderSelect = attributes.items.length > 0;
 
   return (
-    <div className='create-new-item'>
+    <>
       <Row className="call-to-action" style={{ marginBottom: 0 }}>
         <h2>Select which item to sell:</h2>
       </Row>
@@ -892,7 +885,7 @@ const InstantSaleStep = ({
                     Sell limited number of copies
                   </Option>
                 )}
-                {!copiesEnabled && (
+                {!copiesEnabled && isMasterEdition && (
                   <Option value={InstantSaleType.Open}>
                     Sell unlimited number of copies
                   </Option>
@@ -919,12 +912,24 @@ const InstantSaleStep = ({
               )}
             </label>
           )}
-
+          {hasOtherTokens && (
+            <label className="action-field">
+              <span className="field-title">Auction mint</span>
+              <TokenButton mint={mint} onClick={() => setShowTokenDialog(true)} />
+              <TokenDialog
+                setMint={setMint}
+                open={showTokenDialog}
+                onClose={() => {
+                  setShowTokenDialog(false);
+                }}
+              />
+            </label>
+          )}
           <label className="action-field">
             <span className="field-title">Price</span>
-            {/* <span className="field-info">
+            <span className="field-info">
               This is the instant sale price for your item.
-            </span> */}
+            </span>
             <Input
               type="number"
               min={0}
@@ -932,7 +937,7 @@ const InstantSaleStep = ({
               className="input"
               placeholder="Price"
               prefix="◎"
-              suffix="SOL"
+              suffix={mintInfo?.symbol || "CUSTOM"}
               onChange={info =>
                 setAttributes({
                   ...attributes,
@@ -944,7 +949,7 @@ const InstantSaleStep = ({
           </label>
         </Col>
       </Row>
-      <Row className='continue-loyalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -956,7 +961,7 @@ const InstantSaleStep = ({
           Continue
         </Button>
       </Row>
-    </div>
+    </>
   );
 };
 
@@ -965,6 +970,20 @@ const CopiesStep = (props: {
   setAttributes: (attr: AuctionState) => void;
   confirm: () => void;
 }) => {
+  const [showTokenDialog, setShowTokenDialog] = useState(false);
+  const [mint, setMint] = useState<PublicKey>(WRAPPED_SOL_MINT)
+  const { hasOtherTokens, tokenMap } = useTokenList()
+
+  // give default value to mint
+  const mintInfo = tokenMap.get((!mint? QUOTE_MINT.toString(): mint.toString()))
+
+  props.attributes.quoteMintAddress = mint? mint.toBase58(): QUOTE_MINT.toBase58()
+
+  if (props.attributes.quoteMintAddress) {
+    props.attributes.quoteMintInfo = useMint(props.attributes.quoteMintAddress)!
+    props.attributes.quoteMintInfoExtended = useTokenList().tokenMap.get(props.attributes.quoteMintAddress)!
+  }
+
   let artistFilter = (i: SafetyDepositDraft) =>
     !(i.metadata.info.data.creators || []).find((c: Creator) => !c.verified);
   let filter: (i: SafetyDepositDraft) => boolean = (i: SafetyDepositDraft) =>
@@ -1003,6 +1022,19 @@ const CopiesStep = (props: {
           >
             Select NFT
           </ArtSelector>
+          {hasOtherTokens && (
+            <label className="action-field">
+              <span className="field-title">Auction mint</span>
+              <TokenButton mint={mint} onClick={() => setShowTokenDialog(true)} />
+              <TokenDialog
+                setMint={setMint}
+                open={showTokenDialog}
+                onClose={() => {
+                  setShowTokenDialog(false);
+                }}
+              />
+            </label>
+          )}
           {props.attributes.category === AuctionCategory.Limited && (
             <label className="action-field">
               <span className="field-title">
@@ -1027,7 +1059,7 @@ const CopiesStep = (props: {
           )}
         </Col>
       </Row>
-      <Row className = "continue-terms">
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -1048,12 +1080,26 @@ const NumberOfWinnersStep = (props: {
   setAttributes: (attr: AuctionState) => void;
   confirm: () => void;
 }) => {
+  const [showTokenDialog, setShowTokenDialog] = useState(false);
+  const [mint, setMint] = useState<PublicKey>(WRAPPED_SOL_MINT)
+  const { hasOtherTokens, tokenMap} = useTokenList()
+
+  // give default value to mint
+  const mintInfo = tokenMap.get((!mint? QUOTE_MINT.toString(): mint.toString()))
+
+  props.attributes.quoteMintAddress = mint? mint.toBase58(): QUOTE_MINT.toBase58()
+
+  if (props.attributes.quoteMintAddress) {
+    props.attributes.quoteMintInfo = useMint(props.attributes.quoteMintAddress)!
+    props.attributes.quoteMintInfoExtended = useTokenList().tokenMap.get(props.attributes.quoteMintAddress)!
+  }
+
   return (
     <>
-      {/* <Row className="call-to-action">
+      <Row className="call-to-action">
         <h2>Tiered Auction</h2>
         <p>Create a Tiered Auction</p>
-      </Row> */}
+      </Row>
       <Row className="content-action">
         <Col className="section" xl={24}>
           <label className="action-field">
@@ -1076,9 +1122,25 @@ const NumberOfWinnersStep = (props: {
               }
             />
           </label>
+          {hasOtherTokens && (
+            <label className="action-field">
+              <span className="field-title">Auction mint</span>
+              <span className="field-info">
+                This will be the quote mint for your auction.
+              </span>
+              <TokenButton mint={mint} onClick={() => setShowTokenDialog(true)} />
+              <TokenDialog
+                setMint={setMint}
+                open={showTokenDialog}
+                onClose={() => {
+                  setShowTokenDialog(false);
+                }}
+              />
+            </label>
+          )}
         </Col>
       </Row>
-      <Row className='continue-loyalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -1097,11 +1159,20 @@ const PriceAuction = (props: {
   setAttributes: (attr: AuctionState) => void;
   confirm: () => void;
 }) => {
+  console.log(props.attributes)
+  const quoteMintName = props.attributes?.quoteMintInfoExtended?.name || "Custom Token"
+  const quoteMintExt = props.attributes?.quoteMintInfoExtended?.symbol || shortenAddress(props.attributes.quoteMintAddress)
   return (
     <>
       <Row className="call-to-action">
         <h2>Price</h2>
-        <p>Set the price for your auction.</p>
+        <p>
+          Set the price for your auction.
+          {props.attributes.quoteMintAddress != WRAPPED_SOL_MINT.toBase58() && ` Warning! the auction quote mint is `}
+          {props.attributes.quoteMintAddress != WRAPPED_SOL_MINT.toBase58()&& <a href={`https://explorer.solana.com/address/${props.attributes?.quoteMintAddress}`} target="_blank"> {props.attributes?.quoteMintAddress != WRAPPED_SOL_MINT.toBase58() &&
+            `${quoteMintName} (${quoteMintExt})`}
+          </a>}
+        </p>
       </Row>
       <Row className="content-action">
         <Col className="section" xl={24}>
@@ -1119,7 +1190,8 @@ const PriceAuction = (props: {
                 className="input"
                 placeholder="Fixed Price"
                 prefix="◎"
-                suffix="SOL"
+                suffix={props.attributes.quoteMintInfoExtended? props.attributes.quoteMintInfoExtended.symbol
+                    : props.attributes.quoteMintAddress == WRAPPED_SOL_MINT.toBase58()? "SOL": "CUSTOM"}
                 onChange={info =>
                   props.setAttributes({
                     ...props.attributes,
@@ -1144,7 +1216,8 @@ const PriceAuction = (props: {
                 className="input"
                 placeholder="Price"
                 prefix="◎"
-                suffix="SOL"
+                suffix={props.attributes.quoteMintInfoExtended? props.attributes.quoteMintInfoExtended.symbol
+                  : props.attributes.quoteMintAddress == WRAPPED_SOL_MINT.toBase58()? "SOL": "CUSTOM"}
                 onChange={info =>
                   props.setAttributes({
                     ...props.attributes,
@@ -1163,9 +1236,11 @@ const PriceAuction = (props: {
               type="number"
               min={0}
               className="input"
-              placeholder="Tick size in SOL"
+              placeholder={`Tick size in ${props.attributes.quoteMintInfoExtended? props.attributes.quoteMintInfoExtended.symbol
+                : props.attributes.quoteMintAddress == WRAPPED_SOL_MINT.toBase58()? "SOL": "your custom currency"}`}
               prefix="◎"
-              suffix="SOL"
+              suffix={props.attributes.quoteMintInfoExtended? props.attributes.quoteMintInfoExtended.symbol
+                : props.attributes.quoteMintAddress == WRAPPED_SOL_MINT.toBase58()? "SOL": "CUSTOM"}
               onChange={info =>
                 props.setAttributes({
                   ...props.attributes,
@@ -1176,7 +1251,7 @@ const PriceAuction = (props: {
           </label>
         </Col>
       </Row>
-      <Row className='continue-loyalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -1337,7 +1412,7 @@ const InitialPhaseStep = (props: {
           )}
         </Col>
       </Row>
-      <Row className='continue-royalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -1455,7 +1530,7 @@ const EndingPhaseAuction = (props: {
           </label>
         </Col>
       </Row>
-      <Row className='continue-loyalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -1475,6 +1550,7 @@ const TierTableStep = (props: {
   maxWinners: number;
   confirm: () => void;
 }) => {
+
   const newImmutableTiers = (tiers: Tier[]) => {
     return tiers.map(wc => ({
       items: [...wc.items.map(it => ({ ...it }))],
@@ -1737,7 +1813,7 @@ const TierTableStep = (props: {
           </Button>
         </Col>
       </Row>
-      <Row className='continue-royalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -1799,7 +1875,8 @@ const ParticipationStep = (props: {
               className="input"
               placeholder="Fixed Price"
               prefix="◎"
-              suffix="SOL"
+              suffix={props.attributes.quoteMintInfoExtended? props.attributes.quoteMintInfoExtended.symbol
+                : props.attributes.quoteMintAddress == WRAPPED_SOL_MINT.toBase58()? "SOL": "CUSTOM"}
               onChange={info =>
                 props.setAttributes({
                   ...props.attributes,
@@ -1810,7 +1887,7 @@ const ParticipationStep = (props: {
           </label>
         </Col>
       </Row>
-      <Row className='continue-royalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
@@ -1830,17 +1907,29 @@ const ReviewStep = (props: {
   setAttributes: Function;
   connection: Connection;
 }) => {
+  const [showFundsIssueModal, setShowFundsIssueModal] = useState(false)
   const [cost, setCost] = useState(0);
+  const { account } = useNativeAccount();
   useEffect(() => {
     const rentCall = Promise.all([
       props.connection.getMinimumBalanceForRentExemption(MintLayout.span),
       props.connection.getMinimumBalanceForRentExemption(MAX_METADATA_LEN),
     ]);
-
     // TODO: add
   }, [setCost]);
 
+  const balance = (account?.lamports || 0) / LAMPORTS_PER_SOL;
+
   let item = props.attributes.items?.[0];
+
+  const handleConfirm = () => {
+    props.setAttributes({
+      ...props.attributes,
+      startListTS: props.attributes.startListTS || moment().unix(),
+      startSaleTS: props.attributes.startSaleTS || moment().unix(),
+    });
+    props.confirm();
+  }
 
   return (
     <>
@@ -1865,7 +1954,7 @@ const ReviewStep = (props: {
             }
           />
           {cost ? (
-            <AmountLabel title="Cost to Create" amount={cost} />
+            <AmountLabel title="Cost to Create" amount={cost} tokenInfo={useTokenList().tokenMap.get(WRAPPED_SOL_MINT.toString())}/>
           ) : (
             <Spin />
           )}
@@ -1907,17 +1996,16 @@ const ReviewStep = (props: {
           }
         />
       </Row>
-      <Row className='continue-loyalty'>
+      <Row>
         <Button
           type="primary"
           size="large"
           onClick={() => {
-            props.setAttributes({
-              ...props.attributes,
-              startListTS: props.attributes.startListTS || moment().unix(),
-              startSaleTS: props.attributes.startSaleTS || moment().unix(),
-            });
-            props.confirm();
+            if (balance < MINIMUM_SAFE_FEE_AUCTION_CREATION) {
+              setShowFundsIssueModal(true)
+            } else {
+              handleConfirm()
+            }
           }}
           className="action-btn"
         >
@@ -1925,6 +2013,13 @@ const ReviewStep = (props: {
             ? 'List for Sale'
             : 'Publish Auction'}
         </Button>
+        <FundsIssueModal
+          message={"Estimated Minimum Fee"}
+          minimumFunds={MINIMUM_SAFE_FEE_AUCTION_CREATION}
+          currentFunds={balance}
+          isModalVisible={showFundsIssueModal}
+          onClose={() => setShowFundsIssueModal(false)}
+        />
       </Row>
     </>
   );
@@ -1960,7 +2055,7 @@ const WaitingStep = (props: {
     >
       <Progress type="circle" percent={progress} />
       <div className="waiting-title">
-        Your creation is being listed...
+        Your creation is being listed with Metaplex...
       </div>
       <div className="waiting-subtitle">This can take up to 30 seconds.</div>
     </div>
@@ -2003,7 +2098,7 @@ const Congrats = (props: {
         <div className="waiting-title">
           Congratulations! Your auction is now live.
         </div>
-        {/* <div className="congrats-button-container">
+        <div className="congrats-button-container">
           <Button
             className="metaplex-button"
             onClick={_ => window.open(newTweetURL(), '_blank')}
@@ -2013,14 +2108,16 @@ const Congrats = (props: {
           </Button>
           <Button
             className="metaplex-button"
-            onClick={_ =>
-              history.push(`/auction/${props.auction?.auction.toString()}`)
+            onClick={() => {
+                history.push(`/`);
+                history.go(0);
+              }
             }
           >
             <span>See it in your auctions</span>
             <span>&gt;</span>
           </Button>
-        </div> */}
+        </div>
       </div>
       <Confetti />
     </>

@@ -25,22 +25,22 @@ export default class MetaplexDocument extends Document {
             rel="icon"
             type="image/png"
             sizes="32x32"
-            href="/favicon-32x32.png"
+            href="/ackcs-logo-transparent.png"
           />
           <link
             rel="icon"
             type="image/png"
             sizes="96x96"
-            href="/favicon-96x96.png"
+            href="/ackcs-logo-transparent.png"
           />
           <link
             rel="icon"
             type="image/png"
             sizes="16x16"
-            href="/favicon-16x16.png"
+            href="/ackcs-logo-transparent.png"
           />
           <meta name="theme-color" content="#000000" />
-          <meta name="description" content="Metaplex NFT Marketplace" />
+          <meta name="description" content="ACKCS NFT Marketplace" />
           <link rel="manifest" href="/manifest.json" />
           <link
             rel="stylesheet"
@@ -50,25 +50,25 @@ export default class MetaplexDocument extends Document {
           />
         </Head>
         <body>
-          <Main />
-          <NextScript />
-          <script
-            async
-            src="https://platform.twitter.com/widgets.js"
-            charSet="utf-8"
-          />
-          <script
-            type="text/javascript"
-            dangerouslySetInnerHTML={{
-              __html: `
+        <Main />
+        <NextScript />
+        <script
+          async
+          src="https://platform.twitter.com/widgets.js"
+          charSet="utf-8"
+        />
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `
                 (function () {
                   var s = document.createElement("script");
                   s.src = "https://stackpile.io/stack_162299.js"; s.async = true;
                   var e = document.getElementsByTagName("script")[0]; e.parentNode.insertBefore(s, e);
                 })();
           `,
-            }}
-          />
+          }}
+        />
         </body>
       </Html>
     );
