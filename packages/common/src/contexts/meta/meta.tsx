@@ -78,9 +78,9 @@ export function MetaProvider({ children = null as any }) {
       }
       return;
     } else if (!state.store) {
-      setIsLoading(true);
+      // setIsLoading(true);
     }
-    setIsLoading(true);
+    // setIsLoading(true);
 
     const nextState = await pullStoreMetadata(connection, state);
 
@@ -98,7 +98,7 @@ export function MetaProvider({ children = null as any }) {
       }
       return;
     } else if (!state.store) {
-      setIsLoading(true);
+      // setIsLoading(true);
     }
     const nextState = await pullAuctionSubaccounts(
       connection,
@@ -122,7 +122,7 @@ export function MetaProvider({ children = null as any }) {
       }
       return state;
     } else if (!state.store) {
-      setIsLoading(true);
+      // setIsLoading(true);
     }
     const nextState = await pullAuctionSubaccounts(
       connection,
@@ -143,7 +143,7 @@ export function MetaProvider({ children = null as any }) {
     if (!storeAddress) {
       return setIsLoading(false);
     } else if (!state.store) {
-      setIsLoading(true);
+      // setIsLoading(true);
     }
 
     const shouldEnableNftPacks = process.env.NEXT_ENABLE_NFT_PACKS === 'true';
@@ -165,7 +165,7 @@ export function MetaProvider({ children = null as any }) {
     if (!storeAddress && isReady) {
       return setIsLoading(false);
     } else if (!state.store) {
-      setIsLoading(true);
+      // setIsLoading(true);
     }
 
     const packState = await pullPack({
@@ -204,7 +204,7 @@ export function MetaProvider({ children = null as any }) {
       }
       return state;
     } else if (!state.store) {
-      setIsLoading(true);
+      // setIsLoading(true);
     }
     console.log('------->Query started');
 
@@ -228,7 +228,7 @@ export function MetaProvider({ children = null as any }) {
     } else if (!state.store) {
       //@ts-ignore
       window.loadingData = true;
-      setIsLoading(true);
+      // setIsLoading(true);
     }
 
     const shouldFetchNftPacks = process.env.NEXT_ENABLE_NFT_PACKS === 'true';
@@ -368,14 +368,14 @@ export function MetaProvider({ children = null as any }) {
         ...state,
         // @ts-ignore
         update,
-        // pullAuctionPage,
+        pullAuctionPage,
         pullAllMetadata,
-        // pullBillingPage,
+        pullBillingPage,
         // @ts-ignore
         pullAllSiteData,
         pullItemsPage,
-        // pullPackPage,
-        // pullUserMetadata,
+        pullPackPage,
+        pullUserMetadata,
         isLoading,
         isLoadingMetadata,
       }}
