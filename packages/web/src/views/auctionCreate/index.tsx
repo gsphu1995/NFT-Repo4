@@ -222,13 +222,6 @@ export const AuctionCreateView = () => {
 
       if (items.length > 0) {
         const item = items[0];
-        if (!editions) {
-          item.winningConfigType =
-            item.metadata.info.updateAuthority ===
-            (wallet?.publicKey || SystemProgram.programId).toBase58()
-              ? WinningConfigType.FullRightsTransfer
-              : WinningConfigType.TokenOnlyTransfer;
-        }
 
         item.amountRanges = [
           new AmountRange({
@@ -236,6 +229,14 @@ export const AuctionCreateView = () => {
             length: new BN(editions || 1),
           }),
         ];
+      }
+
+      if (!editions) {
+        item.winningConfigType =
+            item.metadata.info.updateAuthority ===
+            (wallet?.publicKey || SystemProgram.programId).toBase58()
+                ? WinningConfigType.FullRightsTransfer
+                : WinningConfigType.TokenOnlyTransfer;
       }
 
       winnerLimit = new WinnerLimit({
