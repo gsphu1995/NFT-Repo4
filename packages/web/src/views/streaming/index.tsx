@@ -231,6 +231,7 @@ export const ArtView = () => {
             <div className="info-header">ABOUT THE CREATOR</div>
             <div className="info-content">{art.about}</div> */}
           </Col>
+
           <Col span="12">
             {attributes && (
               <>
