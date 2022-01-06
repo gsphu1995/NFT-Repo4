@@ -241,7 +241,7 @@ export const AuctionCreateView = () => {
 
       winnerLimit = new WinnerLimit({
         type: WinnerLimitType.Capped,
-        usize: new BN(editions || 1),
+        usize: ZERO,
       });
     } else if (attributes.category === AuctionCategory.Open) {
       if (
@@ -390,10 +390,10 @@ export const AuctionCreateView = () => {
                 ].length.sub(tierRanges[tierRangeCtr].length);
 
                 ranges.push(
-                  new AmountRange({
-                    amount: oldRanges[oldRangeCtr].amount.add(toAdd),
-                    length: tierRanges[tierRangeCtr].length,
-                  }),
+                    new AmountRange({
+                      amount: toAdd,
+                      length: tierRanges[tierRangeCtr].length,
+                    }),
                 );
 
                 tierRangeCtr += 1;
@@ -424,7 +424,7 @@ export const AuctionCreateView = () => {
                 ranges.push(
                   new AmountRange({
                     amount: oldRanges[oldRangeCtr].amount.add(toAdd),
-                    length: oldRanges[oldRangeCtr].length,
+                    length: ZERO,
                   }),
                 );
                 // Move them both in this degen case

@@ -166,7 +166,6 @@ function usePayoutTickets(
           // Ensure no clashes with tickets from other safety deposits in other winning configs even if from same creator by making long keys
           const key = `${auctionView.auctionManager.pubkey}-${i}-${j}-${item.safetyDeposit.pubkey}-${recipientAddresses[k]}-${k}`;
 
-          if (!currFound[key]) {
             payoutPromises.push({
               key,
               promise: getPayoutTicket(
@@ -179,7 +178,6 @@ function usePayoutTickets(
               ),
             });
             total += 1;
-          }
         }
       }
     }
@@ -190,7 +188,7 @@ function usePayoutTickets(
             currFound[payoutPromises[i].key] = payoutTickets[payoutKey];
         });
 
-        setFoundPayoutTickets(pt => ({ ...pt, ...currFound }));
+        // setFoundPayoutTickets(pt => ({ ...pt, ...currFound }));
       },
     );
   }, [
@@ -234,7 +232,6 @@ export function useBillingInfo({ auctionView }: { auctionView: AuctionView }) {
 
   const payoutTickets = usePayoutTickets(auctionView);
   const winners = [...auctionView.auction.info.bidState.bids]
-    .reverse()
     .slice(0, auctionView.auctionManager.numWinners.toNumber());
   const winnerPotsByBidderKey = useWinnerPotsByBidderKey(auctionView);
 
@@ -318,6 +315,24 @@ export function useBillingInfo({ auctionView }: { auctionView: AuctionView }) {
     (acc, el) => (acc += getLosingParticipationPrice(el, auctionView)),
     0,
   );
+
+  useMemo(async () => {
+    const newKeys: Record<string, StringPublicKey> = {};
+
+    for (let i = 0; i < bids.length; i++) {
+      const o = bids[i];
+      if (!participationBidRedemptionKeys[o.pubkey]) {
+        newKeys[o.pubkey] = (
+            await getBidderKeys(auctionView.auction.pubkey, o.info.bidderPubkey)
+        ).bidRedemption;
+      }
+    }
+
+    setParticipationBidRedemptionKeys({
+      ...participationBidRedemptionKeys,
+      ...newKeys,
+    });
+  }, [bids.length]);
 
   // Winners always get it for free so pay zero for them - figure out among all
   // eligible open edition winners what is the total possible for display.
