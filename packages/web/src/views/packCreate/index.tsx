@@ -122,12 +122,6 @@ export const PackCreateView = (): ReactElement => {
 
       let updatedSelectedVouchers = { ...selectedVouchers };
 
-      if (updatedSelectedVouchers[metadata.pubkey]) {
-        delete updatedSelectedVouchers[metadata.pubkey];
-      } else {
-        updatedSelectedVouchers = { [metadata.pubkey]: item };
-      }
-
       setPackState({ selectedVouchers: updatedSelectedVouchers });
     },
     [setPackState, selectedVouchers],
