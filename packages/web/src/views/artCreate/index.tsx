@@ -285,13 +285,13 @@ const CategoryStep = (props: {
           </Row>
           <Row>
             <Button
-                className="type-btn"
-                size="large"
-                onClick={() => props.confirm(MetadataCategory.Image)}
+              className="type-btn"
+              size="large"
+              onClick={() => props.confirm(MetadataCategory.VR)}
             >
               <div>
-                <div>Image</div>
-                <div className="type-btn-description">JPG, PNG, GIF</div>
+                <div>AR/3D</div>
+                <div className="type-btn-description">GLB</div>
               </div>
             </Button>
           </Row>

@@ -80,16 +80,12 @@ const AdjustQuantitiesStep = ({
       <p className="quantities-step-wrapper__subtitle">
         Number of times user can redeem a card using a single voucher.
       </p>
-
-      <div className="error-tooltip-container">
-        <Tooltip
-            overlayClassName="creat-pack-redeem-tooltip"
-            placement="top"
-            title="Weight must be between 1-100"
-        >
-          <ExclamationCircleOutlined className="input-info" />
-        </Tooltip>
-      </div>
+      <Input
+        className="quantities-step-wrapper__input"
+        type="number"
+        value={allowedAmountToRedeem}
+        onChange={({ target: { value } }) => handleRedeemAmountChange(value)}
+      />
 
       <p className="quantities-step-wrapper__title">Select distribution type</p>
       <div className="cards-select">
@@ -114,13 +110,6 @@ const AdjustQuantitiesStep = ({
           )
         }
       </div>
-
-      <Input
-          className="quantities-step-wrapper__input"
-          type="number"
-          value={allowedAmountToRedeem}
-          onChange={({ target: { value } }) => handleRedeemAmountChange(value)}
-      />
 
       {Object.values(selectedItems).map(item => (
         <ItemRow key={item.metadata.pubkey} item={item}>
