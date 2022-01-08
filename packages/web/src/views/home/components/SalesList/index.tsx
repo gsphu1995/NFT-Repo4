@@ -1,5 +1,5 @@
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Col, Layout, Row, Tabs } from 'antd';
+import {Button, Col, Layout, Row, Tabs} from 'antd';
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 
@@ -10,6 +10,7 @@ import { HowToBuyModal } from '../../../../components/HowToBuyModal';
 
 import { useAuctionsList } from './hooks/useAuctionsList';
 import { AuctionRenderCard } from '../../../../components/AuctionRenderCard';
+import {AuctionCategory} from "../../../auctionCreate";
 
 const { TabPane } = Tabs;
 const { Content } = Layout;
@@ -81,6 +82,20 @@ export const SalesListView = () => {
                     </Link>
                   ))}
               </div>
+            </Row>
+            <Row>
+              <Button
+                  className="type-btn"
+                  size="large"
+                  onClick={() => hasResaleAuctions()}
+              >
+                <div>
+                  <div>Limited Edition</div>
+                  <div className="type-btn-description">
+                    Sell a limited copy or copies of a single Master NFT
+                  </div>
+                </div>
+              </Button>
             </Row>
           </Col>
         </Content>

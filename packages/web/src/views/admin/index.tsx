@@ -74,7 +74,7 @@ export const AdminView = () => {
         </p>
       ) : !storeAddress || isLoading ? (
         <Spin />
-      ) : store && wallet ? (
+      ) : (
         <>
           <InnerAdminView
             store={store}
@@ -97,11 +97,6 @@ export const AdminView = () => {
               />
             </>
           )}
-        </>
-      ) : (
-        <>
-          <p>Store is not initialized</p>
-          <Link to={`/`}>Go to initialize</Link>
         </>
       )}
     </>
@@ -214,7 +209,7 @@ function InnerAdminView({
       );
     };
     fn();
-  }, [connected]);
+  }, []);
 
   const uniqueCreators = Object.values(whitelistedCreatorsByCreator).reduce(
     (acc: Record<string, WhitelistedCreator>, e) => {
@@ -316,19 +311,19 @@ function InnerAdminView({
           </Col>
         </Row>
         <Row>
-          <Table
-            className="artist-whitelist-table"
-            columns={columns}
-            dataSource={Object.keys(uniqueCreatorsWithUpdates).map(key => ({
-              key,
-              address: uniqueCreatorsWithUpdates[key].address,
-              activated: uniqueCreatorsWithUpdates[key].activated,
-              name:
-                uniqueCreatorsWithUpdates[key].name ||
-                shortenAddress(uniqueCreatorsWithUpdates[key].address),
-              image: uniqueCreatorsWithUpdates[key].image,
-            }))}
-          ></Table>
+          {/*<Table*/}
+          {/*  className="artist-whitelist-table"*/}
+          {/*  columns={columns}*/}
+          {/*  dataSource={Object.keys(uniqueCreatorsWithUpdates).map(key => ({*/}
+          {/*    key,*/}
+          {/*    address: uniqueCreatorsWithUpdates[key].address,*/}
+          {/*    activated: uniqueCreatorsWithUpdates[key].activated,*/}
+          {/*    name:*/}
+          {/*      uniqueCreatorsWithUpdates[key].name ||*/}
+          {/*      shortenAddress(uniqueCreatorsWithUpdates[key].address),*/}
+          {/*    image: uniqueCreatorsWithUpdates[key].image,*/}
+          {/*  }))}*/}
+          {/*></Table>*/}
         </Row>
       </Col>
 
